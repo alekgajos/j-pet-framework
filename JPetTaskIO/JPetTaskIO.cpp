@@ -29,9 +29,12 @@ JPetTaskIO::JPetTaskIO():
   fWriter(0),
   fReader(0),
   fHeader(0),
+  fFirstEvt(0ll),
+  fLastEvt(0ll),
   fStatistics(0),
   fAuxilliaryData(0),
-  fParamManager(0)
+  fParamManager(0),
+  fIOmode(kINOUT)
 {
 }
 
@@ -128,6 +131,10 @@ JPetParamManager& JPetTaskIO::getParamManager()
 
 void JPetTaskIO::createInputObjects(const char* inputFilename)
 {
+  if( fIOmode!=kIN && fIOmode!=kINOUT ){
+    return;
+  }
+  
   auto treeName = "";
   fReader = new JPetReader;
   if (fOptions.getInputFileType() == JPetOptions::kHld ) {
@@ -170,10 +177,29 @@ void JPetTaskIO::createInputObjects(const char* inputFilename)
     ERROR(inputFilename + std::string(": Unable to open the input file or load the tree"));
     exit(-1);
   }
+
+  // set event limits to process
+  auto totalEvents = 0ll;
+  if (fReader) {
+    totalEvents = fReader->getNbOfAllEvents();
+  } else {
+    WARNING("no JPETReader set totalEvents set to -1");
+    totalEvents = -1;
+  }
+  setUserLimits(fOptions, totalEvents, fFirstEvt, fLastEvt);
+  assert(fLastEvt >= 0);
+  fCurrEvt = fFirstEvt;
+
+  std::cout << "First: "<< fFirstEvt << "\n";
+  std::cout << "Last: "<< fLastEvt << "\n";
 }
 
 void JPetTaskIO::createOutputObjects(const char* outputFilename)
 {
+  if(fIOmode!=kOUT && fIOmode!=kINOUT){
+    return;
+  }
+  
   fWriter = new JPetWriter( outputFilename );
   assert(fWriter);
   if (fTask) {
@@ -183,8 +209,8 @@ void JPetTaskIO::createOutputObjects(const char* outputFilename)
     if (!fAuxilliaryData) {
       fAuxilliaryData = new JPetAuxilliaryData();
     }
-    task->setStatistics(fStatistics);
-    task->setAuxilliaryData(fAuxilliaryData);
+    if(fIOmode==kIN || fIOmode==kINOUT) task->setStatistics(fStatistics);
+    if(fIOmode==kIN || fIOmode==kINOUT) task->setAuxilliaryData(fAuxilliaryData);
   } else {
     WARNING("the subTask does not exist, so Write was not passed to it");
   }
@@ -250,4 +276,30 @@ void JPetTaskIO::setUserLimits(const JPetOptions& opts, const long long kTotEven
   assert(first >= 0);
   assert(last >= 0);
   assert(first <= last);
+}
+
+
+/**
+ * @brief Reads timeWindow from file, processes, sets fOutputEvents and returns true, or returns false if there are no more events
+ */
+bool JPetTaskIO::processEventFromFile(){
+
+  std::cout << "Curr :" << fCurrEvt << "\n";
+  
+  if( fCurrEvt > fLastEvt ){
+    return false;
+  }
+  
+  (dynamic_cast<JPetTask*>(fTask))->setEvent(&(static_cast<TObject&>(fReader->getCurrentEvent())));
+  (dynamic_cast<JPetTask*>(fTask))->getOutputEvents()->Clear();
+  fTask->exec();
+  fReader->nextEvent();
+
+  fCurrEvt++;
+  
+  return true;
+}
+
+void JPetTaskIO::writeEventToFile(){
+  fWriter->write(*((dynamic_cast<JPetTask*>(fTask))->getOutputEvents()));
 }

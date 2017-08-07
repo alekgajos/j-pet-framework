@@ -23,6 +23,7 @@
 #include "../JPetOptions/JPetOptions.h"
 #include "../JPetTask/JPetTask.h"
 #include "../JPetProgressBarManager/JPetProgressBarManager.h"
+#include "../JPetWriter/JPetWriter.h"
 #include <memory>
 
 class JPetWriter;
@@ -40,6 +41,9 @@ class JPetAuxilliaryData;
 class JPetTaskIO: public JPetTaskRunner
 {
 public:
+
+  enum IOmode{kIN,kOUT,kINOUT,kVIRTUAL};
+  
   JPetTaskIO();
   virtual void init(const JPetOptions::Options& opts);
   virtual void exec();
@@ -47,6 +51,15 @@ public:
   virtual ~JPetTaskIO();
   virtual void runTask() {};
 
+  /************************************************************************/
+  /* Stuff for skipping intermediate files                                */
+  /************************************************************************/
+  virtual bool processEventFromFile();
+  virtual void writeEventToFile();
+  virtual void setIOmode(IOmode mode){
+    fIOmode = mode;
+  };
+  
   void setOptions(const JPetOptions& opts);
   inline JPetOptions getOptions() const {
     return fOptions;
@@ -65,6 +78,9 @@ protected:
   JPetParamManager& getParamManager();
 
   int fEventNb;
+  long long fCurrEvt;
+  long long fFirstEvt;
+  long long fLastEvt;
   JPetOptions fOptions; //options like max num of events, first event, last event, inputFileType, outputFileType
   JPetWriter* fWriter;
   JPetReaderInterface* fReader;
@@ -73,5 +89,7 @@ protected:
   JPetAuxilliaryData* fAuxilliaryData;
   JPetParamManager* fParamManager;
   JPetProgressBarManager fProgressBar;
+
+  IOmode fIOmode;
 };
 #endif /*  !JPETTASKIO_H */
