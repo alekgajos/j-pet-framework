@@ -18,6 +18,7 @@
 #include "../JPetTaskInterface/JPetTaskInterface.h"
 #include "../JPetParamGetterAscii/JPetParamGetterAscii.h"
 #include "../JPetParamGetterAscii/JPetParamSaverAscii.h"
+#include "../JPetTimeWindow/JPetTimeWindow.h"
 #include "../JPetLoggerInclude.h"
 #include "JPetTaskChainExecutorUtils.h"
 #include <memory>
@@ -62,46 +63,105 @@ bool JPetTaskChainExecutor::process()
 
   elapsedTime.push_back(std::make_pair("Preprocessing", stdc::duration_cast< stdc::seconds > (stdc::system_clock::now() - startTime)));
 
+  /*
+   *
+   */
+  std::vector<JPetTask*> tasks;
   for (auto currentTask = fTasks.begin(); currentTask != fTasks.end(); currentTask++) {
-    JPetOptions::Options currOpts = fOptions.getOptions();
-    if (currentTask != fTasks.begin()) {
-      /// Ignore the event range options for all but the first task.
-      currOpts = JPetOptions::resetEventRange(currOpts);
-      /// For all but the first task,
-      /// the input path must be changed if
-      /// the output path argument -o was given, because the input
-      /// data for them will lay in the location defined by -o.
-      auto outPath  = currOpts.at("outputPath");
-      if (!outPath.empty()) {
-        currOpts.at("inputFile") = outPath + JPetCommonTools::extractPathFromFile(currOpts.at("inputFile")) + JPetCommonTools::extractFileNameFromFullPath(currOpts.at("inputFile"));
-      }
-    }
-    auto taskCurr = dynamic_cast<JPetTask*> (dynamic_cast<JPetTaskLoader*>(*currentTask)->getTask());
-    //auto taskCurr = std::dynamic_pointer_cast<JPetTask>((*currentTask)->getTask());
-    auto taskName = taskCurr->GetName();
-    startTime = stdc::system_clock::now();
-    INFO(Form("Starting task: %s", taskName));
-    JPetTaskChainExecutor::printCurrentOptionsToLog(currOpts);
-    /// @todo fix it
-    auto taskRunnerCurr =  dynamic_cast<JPetTaskIO*> (*currentTask);
-    taskRunnerCurr->init(currOpts);
-    taskRunnerCurr->exec();
-    taskRunnerCurr->terminate();
+    tasks.push_back(dynamic_cast<JPetTask*> (dynamic_cast<JPetTaskLoader*>(*currentTask)->getTask()));
+  }
 
-    elapsedTime.push_back(std::make_pair("task " + std::string(taskName), stdc::duration_cast< stdc::seconds > (stdc::system_clock::now() - startTime)));
-    INFO(Form("Finished task: %s", taskName));
+
+  JPetTaskIO * firstTaskIO = dynamic_cast<JPetTaskIO*>(fTasks.front());
+  JPetTaskIO * lastTaskIO = dynamic_cast<JPetTaskIO*>(fTasks.back());
+
+  // open input file of first task
+  firstTaskIO->setIOmode(JPetTaskIO::kIN);
+  firstTaskIO->init(fOptions.getOptions());
+  
+  // open output file of last task
+  lastTaskIO->setIOmode(JPetTaskIO::kOUT);
+  lastTaskIO->init(fOptions.getOptions());
+
+  // initialize all tasks
+  for(auto task : tasks){
+    task->setParamManager(fParamManager);
+    task->setStatistics(new JPetStatistics());
+    task->init(fOptions.getOptions());    
   }
-  for (auto & el : elapsedTime) {
-    INFO("Elapsed time for " + el.first + ":" + el.second.count() + " [s]");
+  
+  // process
+  JPetTimeWindow * events;
+
+
+
+  while(firstTaskIO->processEventFromFile()){ // as long as there are events in the input file/range
+
+    for(auto task=tasks.begin()+1; task != tasks.end(); task++){
+
+      events = (*(task-1))->getOutputEvents();
+      std::cout << "Entries:" << events->getNumberOfEvents()  << "\n";
+      (*task)->setEvent(events);
+      (*task)->exec();
+      events->Clear();
+    }
+
+    lastTaskIO->writeEventToFile();
   }
-  auto total = std::accumulate(elapsedTime.begin(),
-                               elapsedTime.end(),
-                               stdc::seconds (0),
-  [](const stdc::seconds prev, const std::pair <std::string, stdc::seconds>& el) {
-    return prev + el.second;
+  
+  
+  // terminate all tasks
+  for(auto task : tasks){
+    task->terminate();    
   }
-                              );
-  INFO(std::string("Total elapsed time:") + total.count() + " [s]");
+  
+  /*
+   *
+   */
+  // for (auto currentTask = fTasks.begin(); currentTask != fTasks.end(); currentTask++) {
+  //   JPetOptions::Options currOpts = fOptions.getOptions();
+  //   if (currentTask != fTasks.begin()) {
+  //     /// Ignore the event range options for all but the first task.
+  //     currOpts = JPetOptions::resetEventRange(currOpts);
+  //     /// For all but the first task,
+  //     /// the input path must be changed if
+  //     /// the output path argument -o was given, because the input
+  //     /// data for them will lay in the location defined by -o.
+  //     auto outPath  = currOpts.at("outputPath");
+  //     if (!outPath.empty()) {
+  //       currOpts.at("inputFile") = outPath + JPetCommonTools::extractPathFromFile(currOpts.at("inputFile")) + JPetCommonTools::extractFileNameFromFullPath(currOpts.at("inputFile"));
+  //     }
+  //   }
+  //   auto taskCurr = dynamic_cast<JPetTask*> (dynamic_cast<JPetTaskLoader*>(*currentTask)->getTask());
+  //   //auto taskCurr = std::dynamic_pointer_cast<JPetTask>((*currentTask)->getTask());
+  //   auto taskName = taskCurr->GetName();
+  //   startTime = stdc::system_clock::now();
+  //   INFO(Form("Starting task: %s", taskName));
+  //   JPetTaskChainExecutor::printCurrentOptionsToLog(currOpts);
+  //   /// @todo fix it
+  //   auto taskRunnerCurr =  dynamic_cast<JPetTaskIO*> (*currentTask);
+  //   taskRunnerCurr->init(currOpts);
+  //   taskRunnerCurr->exec();
+  //   taskRunnerCurr->terminate();
+
+  //   elapsedTime.push_back(std::make_pair("task " + std::string(taskName), stdc::duration_cast< stdc::seconds > (stdc::system_clock::now() - startTime)));
+  //   INFO(Form("Finished task: %s", taskName));
+  // }
+  /*
+   *
+   */
+  
+  // for (auto & el : elapsedTime) {
+  //   INFO("Elapsed time for " + el.first + ":" + el.second.count() + " [s]");
+  // }
+  // auto total = std::accumulate(elapsedTime.begin(),
+  //                              elapsedTime.end(),
+  //                              stdc::seconds (0),
+  // [](const stdc::seconds prev, const std::pair <std::string, stdc::seconds>& el) {
+  //   return prev + el.second;
+  // }
+  //                             );
+  // INFO(std::string("Total elapsed time:") + total.count() + " [s]");
 
   return true;
 }
