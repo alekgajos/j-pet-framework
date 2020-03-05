@@ -86,12 +86,19 @@ bool JPetUnpackTask::run(const JPetDataInterface&)
 
     INFO(Form("Using Unpacker2 to process first %i events", fEventsToProcess));
 
-    fUnpacker2->UnpackSingleStep(
-      fInputFile, fInputFilePath, fOutputFilePath,
-      fXMLConfFile, fEventsToProcess, refChannelOffset,
-      fTOTOffsetCalibFile, fTDCnonlinearityCalibFile
-    );
+    // fUnpacker2->UnpackSingleStep(
+    //   fInputFile, fInputFilePath, fOutputFilePath,
+    //   fXMLConfFile, fEventsToProcess, refChannelOffset,
+    //   fTOTOffsetCalibFile, fTDCnonlinearityCalibFile
+    // );
 
+    fUnpacker2->UnpackSingleStep((fInputFilePath + "/" + fInputFile).c_str(),
+				 fXMLConfFile.c_str(),
+				 fEventsToProcess,
+				 refChannelOffset,
+				 fTOTOffsetCalibFile.c_str(),
+				 fTDCnonlinearityCalibFile.c_str());
+    
   } else if (DetectorTypeChecker::getDetectorType(fOptions) == DetectorTypeChecker::DetectorType::kModular) {
 
     int refChannelOffset = 105;
@@ -99,12 +106,19 @@ bool JPetUnpackTask::run(const JPetDataInterface&)
 
     INFO(Form("Using Unpacker2D to process first %i events", fEventsToProcess));
 
-    fUnpacker2D->UnpackSingleStep(
-      fInputFile, fInputFilePath, fOutputFilePath,
-      fXMLConfFile, fEventsToProcess, refChannelOffset,
-      fTOTOffsetCalibFile, fTDCnonlinearityCalibFile
-    );
+    // fUnpacker2D->UnpackSingleStep(
+    //   fInputFile, fInputFilePath, fOutputFilePath,
+    //   fXMLConfFile, fEventsToProcess, refChannelOffset,
+    //   fTOTOffsetCalibFile, fTDCnonlinearityCalibFile
+    // );
 
+    fUnpacker2D->UnpackSingleStep((fInputFilePath + "/" + fInputFile).c_str(),
+				  fXMLConfFile.c_str(),
+				  fEventsToProcess,
+				  refChannelOffset,
+				  fTOTOffsetCalibFile.c_str(),
+				  fTDCnonlinearityCalibFile.c_str());
+    
   } else {
     return false;
   }
