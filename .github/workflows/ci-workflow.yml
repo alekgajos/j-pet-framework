@@ -36,6 +36,6 @@ jobs:
         source root/bin/thisroot.sh
         cd build
         source bin/thisframework.sh
-	ls -l src/Unpacker2-download/Unpacker2-prefix/src/Unpacker2-build/
-	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:src/Unpacker2-download/Unpacker2-prefix/src/Unpacker2-build/
+        ls -l src/Unpacker2-download/Unpacker2-prefix/src/Unpacker2-build/
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:src/Unpacker2-download/Unpacker2-prefix/src/Unpacker2-build/
         ctest -j6 -C Debug -T test
