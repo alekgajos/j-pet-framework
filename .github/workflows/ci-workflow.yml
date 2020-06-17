@@ -19,7 +19,7 @@ jobs:
     - name: download  ROOT 
       run: |
         wget https://root.cern.ch/download/root_v6.14.00.Linux-ubuntu18-x86_64-gcc7.3.tar.gz
-        tar xzf root_v6.13.08.Linux-ubuntu18-x86_64-gcc7.3.tar.gz
+        tar xzf root_v6.14.00.Linux-ubuntu18-x86_64-gcc7.3.tar.gz
     - name: cmake
       run: |
         source root/bin/thisroot.sh
