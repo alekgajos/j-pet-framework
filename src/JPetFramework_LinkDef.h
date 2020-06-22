@@ -40,6 +40,7 @@
 #pragma link C++ class JPetPM + ;
 #pragma link C++ class JPetTOMBChannel + ;
 #pragma link C++ class JPetEvent + ;
+#pragma link C++ class std::vector<JPetHit*> + ;
 #pragma link C++ class JPetLOR + ;
 #pragma link C++ class JPetGeantEventPack + ;
 #pragma link C++ class JPetMCDecayTree + ;

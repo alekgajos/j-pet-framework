@@ -46,13 +46,13 @@ public:
   enum RecoFlag { Good, Corrupted, Unknown };
 
   JPetEvent();
-  JPetEvent(const std::vector<JPetHit>& hits,
+  JPetEvent(const std::vector<JPetHit*>& hits,
             JPetEventType eventType = JPetEventType::kUnknown,
             bool orderedByTime = true);
   JPetEvent::RecoFlag getRecoFlag() const;
-  const std::vector<JPetHit>& getHits() const;
+  const std::vector<JPetHit*>& getHits() const;
   void setRecoFlag(JPetEvent::RecoFlag flag);
-  void setHits(const std::vector<JPetHit>& hits, bool orderedByTime = true);
+  void setHits(const std::vector<JPetHit*>& hits, bool orderedByTime = true);
   void addHit(const JPetHit& hit);
   JPetEventType getEventType() const;
   void setEventType(JPetEventType type);
@@ -62,7 +62,7 @@ public:
   void Clear(Option_t* opt = "");
 
 protected:
-  std::vector<JPetHit> fHits;
+  std::vector<JPetHit*> fHits;
 #ifndef __CINT__
   JPetEventType fType = JPetEventType::kUnknown;
 #else
@@ -72,6 +72,6 @@ protected:
 private:
   RecoFlag fFlag = JPetEvent::Unknown;
 
-  ClassDef(JPetEvent, 6);
+  ClassDef(JPetEvent, 7);
 };
 #endif /* !JPETEVENT_H */

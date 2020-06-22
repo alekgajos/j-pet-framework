@@ -49,71 +49,87 @@ BOOST_AUTO_TEST_CASE(constructor)
   JPetHit secondHit;
   firstHit.setBarrelSlot(slot1);
   secondHit.setBarrelSlot(slot2);
-  JPetEvent event({firstHit, secondHit}, JPetEventType::kUnknown);
+  JPetEvent event({&firstHit, &secondHit}, JPetEventType::kUnknown);
   BOOST_REQUIRE(!event.getHits().empty());
   BOOST_REQUIRE_EQUAL(event.getHits().size(), 2u);
 }
 
 BOOST_AUTO_TEST_CASE(constructor_orderedHits)
 {
-  std::vector<JPetHit> hits(4);
-  hits[0].setTime(2);
-  hits[1].setTime(1);
-  hits[2].setTime(4);
-  hits[3].setTime(3);
+  std::vector<JPetHit*> hits(4);
+  for (int i = 0; i < 4; ++i)
+  {
+    hits[i] = new JPetHit();
+  }
+  hits[0]->setTime(2);
+  hits[1]->setTime(1);
+  hits[2]->setTime(4);
+  hits[3]->setTime(3);
   JPetEvent event(hits, JPetEventType::kUnknown);
   auto results = event.getHits();
-  BOOST_REQUIRE_EQUAL(results[0].getTime(), 1);
-  BOOST_REQUIRE_EQUAL(results[1].getTime(), 2);
-  BOOST_REQUIRE_EQUAL(results[2].getTime(), 3);
-  BOOST_REQUIRE_EQUAL(results[3].getTime(), 4);
+  BOOST_REQUIRE_EQUAL(results[0]->getTime(), 1);
+  BOOST_REQUIRE_EQUAL(results[1]->getTime(), 2);
+  BOOST_REQUIRE_EQUAL(results[2]->getTime(), 3);
+  BOOST_REQUIRE_EQUAL(results[3]->getTime(), 4);
 }
 
 BOOST_AUTO_TEST_CASE(constructor_unorderedHits)
 {
-  std::vector<JPetHit> hits(4);
-  hits[0].setTime(2);
-  hits[1].setTime(1);
-  hits[2].setTime(4);
-  hits[3].setTime(3);
+  std::vector<JPetHit*> hits(4);
+  for (int i = 0; i < 4; ++i)
+  {
+    hits[i] = new JPetHit();
+  }
+  hits[0]->setTime(2);
+  hits[1]->setTime(1);
+  hits[2]->setTime(4);
+  hits[3]->setTime(3);
   JPetEvent event(hits, JPetEventType::kUnknown, false);
   auto results = event.getHits();
-  BOOST_REQUIRE_EQUAL(results[0].getTime(), 2);
-  BOOST_REQUIRE_EQUAL(results[1].getTime(), 1);
-  BOOST_REQUIRE_EQUAL(results[2].getTime(), 4);
-  BOOST_REQUIRE_EQUAL(results[3].getTime(), 3);
+  BOOST_REQUIRE_EQUAL(results[0]->getTime(), 2);
+  BOOST_REQUIRE_EQUAL(results[1]->getTime(), 1);
+  BOOST_REQUIRE_EQUAL(results[2]->getTime(), 4);
+  BOOST_REQUIRE_EQUAL(results[3]->getTime(), 3);
 }
 
 BOOST_AUTO_TEST_CASE(set_unorderedHits)
 {
   JPetEvent event;
-  std::vector<JPetHit> hits(4);
-  hits[0].setTime(2);
-  hits[1].setTime(1);
-  hits[2].setTime(4);
-  hits[3].setTime(3);
+  std::vector<JPetHit*> hits(4);
+  for (int i = 0; i < 4; ++i)
+  {
+    hits[i] = new JPetHit();
+  }
+  hits[0]->setTime(2);
+  hits[1]->setTime(1);
+  hits[2]->setTime(4);
+  hits[3]->setTime(3);
   event.setHits(hits, false);
   auto results = event.getHits();
-  BOOST_REQUIRE_EQUAL(results[0].getTime(), 2);
-  BOOST_REQUIRE_EQUAL(results[1].getTime(), 1);
-  BOOST_REQUIRE_EQUAL(results[2].getTime(), 4);
-  BOOST_REQUIRE_EQUAL(results[3].getTime(), 3);
+  BOOST_REQUIRE_EQUAL(results[0]->getTime(), 2);
+  BOOST_REQUIRE_EQUAL(results[1]->getTime(), 1);
+  BOOST_REQUIRE_EQUAL(results[2]->getTime(), 4);
+  BOOST_REQUIRE_EQUAL(results[3]->getTime(), 3);
 }
 
 BOOST_AUTO_TEST_CASE(set_orderedHits)
 {
   JPetEvent event;
-  std::vector<JPetHit> hits(4);
-  hits[0].setTime(2);
-  hits[1].setTime(1);
-  hits[2].setTime(4);
-  hits[3].setTime(3);
+  std::vector<JPetHit*> hits(4);
+  for (int i = 0; i < 4; ++i)
+  {
+    hits[i] = new JPetHit();
+  }
+  hits[0]->setTime(2);
+  hits[1]->setTime(1);
+  hits[2]->setTime(4);
+  hits[3]->setTime(3);
   event.setHits(hits);
   auto results = event.getHits();
-  BOOST_REQUIRE_EQUAL(results[0].getTime(), 1);
-  BOOST_REQUIRE_EQUAL(results[1].getTime(), 2);
-  BOOST_REQUIRE_EQUAL(results[2].getTime(), 3);
-  BOOST_REQUIRE_EQUAL(results[3].getTime(), 4);
+  BOOST_REQUIRE_EQUAL(results[0]->getTime(), 1);
+  BOOST_REQUIRE_EQUAL(results[1]->getTime(), 2);
+  BOOST_REQUIRE_EQUAL(results[2]->getTime(), 3);
+  BOOST_REQUIRE_EQUAL(results[3]->getTime(), 4);
 }
 
 BOOST_AUTO_TEST_CASE(addHit)
@@ -122,7 +138,7 @@ BOOST_AUTO_TEST_CASE(addHit)
   JPetHit firstHit;
   JPetHit secondHit;
   JPetHit thirdHit;
-  event.setHits({firstHit, secondHit});
+  event.setHits({&firstHit, &secondHit});
   BOOST_REQUIRE(!event.getHits().empty());
   BOOST_REQUIRE_EQUAL(event.getHits().size(), 2u);
   event.addHit(thirdHit);
@@ -143,7 +159,7 @@ BOOST_AUTO_TEST_CASE(eventTypes)
 BOOST_AUTO_TEST_CASE(eventTypes2)
 {
   JPetHit firstHit;
-  JPetEvent event({firstHit}, JPetEventType::kPrompt);
+  JPetEvent event({&firstHit}, JPetEventType::kPrompt);
   auto type = event.getEventType();
   BOOST_REQUIRE((type & JPetEventType::kPrompt) == JPetEventType::kPrompt);
   BOOST_REQUIRE((type & JPetEventType::kUnknown) != JPetEventType::kUnknown);
@@ -155,7 +171,7 @@ BOOST_AUTO_TEST_CASE(eventTypes2)
 BOOST_AUTO_TEST_CASE(eventTypes3)
 {
   JPetHit firstHit;
-  JPetEvent event({firstHit}, static_cast<JPetEventType>(JPetEventType::kPrompt | JPetEventType::k2Gamma));
+  JPetEvent event({&firstHit}, static_cast<JPetEventType>(JPetEventType::kPrompt | JPetEventType::k2Gamma));
   auto type = event.getEventType();
   BOOST_REQUIRE((type & JPetEventType::kPrompt) == JPetEventType::kPrompt);
   BOOST_REQUIRE((type & JPetEventType::k2Gamma) == JPetEventType::k2Gamma);
@@ -167,7 +183,7 @@ BOOST_AUTO_TEST_CASE(eventTypes3)
 BOOST_AUTO_TEST_CASE(isTypeOf)
 {
   JPetHit firstHit;
-  JPetEvent event({firstHit}, static_cast<JPetEventType>(JPetEventType::kPrompt | JPetEventType::k2Gamma));
+  JPetEvent event({&firstHit}, static_cast<JPetEventType>(JPetEventType::kPrompt | JPetEventType::k2Gamma));
   BOOST_REQUIRE(event.isTypeOf(JPetEventType::k2Gamma));
   BOOST_REQUIRE(!event.isTypeOf(JPetEventType::k3Gamma));
   BOOST_REQUIRE(event.isTypeOf(JPetEventType::kPrompt));
@@ -178,7 +194,7 @@ BOOST_AUTO_TEST_CASE(isTypeOf)
 BOOST_AUTO_TEST_CASE(isOnlyTypeOf)
 {
   JPetHit firstHit;
-  JPetEvent event({firstHit}, static_cast<JPetEventType>(JPetEventType::kPrompt | JPetEventType::k2Gamma));
+  JPetEvent event({&firstHit}, static_cast<JPetEventType>(JPetEventType::kPrompt | JPetEventType::k2Gamma));
   BOOST_REQUIRE(!event.isOnlyTypeOf(JPetEventType::k2Gamma));
   BOOST_REQUIRE(!event.isOnlyTypeOf(JPetEventType::k3Gamma));
   BOOST_REQUIRE(!event.isOnlyTypeOf(JPetEventType::kPrompt));
@@ -198,7 +214,7 @@ BOOST_AUTO_TEST_CASE(isOnlyTypeOf)
 BOOST_AUTO_TEST_CASE(setGetType)
 {
   JPetHit firstHit;
-  JPetEvent event({firstHit}, JPetEventType::kPrompt);
+  JPetEvent event({&firstHit}, JPetEventType::kPrompt);
   event.setEventType(static_cast<JPetEventType>(JPetEventType::k2Gamma | JPetEventType::k3Gamma));
   auto type = event.getEventType();
   BOOST_REQUIRE((type & JPetEventType::kPrompt) != JPetEventType::kPrompt);
@@ -211,7 +227,7 @@ BOOST_AUTO_TEST_CASE(setGetType)
 BOOST_AUTO_TEST_CASE(addEventType)
 {
   JPetHit firstHit;
-  JPetEvent event({firstHit}, JPetEventType::kPrompt);
+  JPetEvent event({&firstHit}, JPetEventType::kPrompt);
   event.addEventType(JPetEventType::k2Gamma);
   auto type = event.getEventType();
   BOOST_REQUIRE((type & JPetEventType::kPrompt) == JPetEventType::kPrompt);
@@ -251,6 +267,49 @@ BOOST_AUTO_TEST_CASE(addEventType3)
   BOOST_REQUIRE((type & JPetEventType::kUnknown) != JPetEventType::kUnknown);
   BOOST_REQUIRE((type & JPetEventType::kPrompt) != JPetEventType::kPrompt);
   BOOST_REQUIRE((type & JPetEventType::kScattered) != JPetEventType::kScattered);
+}
+
+BOOST_AUTO_TEST_CASE(hitsPointerStorageTest)
+{
+  std::vector<JPetHit*> hits(4);
+  for (int i = 0; i < 4; ++i)
+  {
+    hits[i] = new JPetHit();
+  }
+  hits[0]->setTime(2);
+  hits[1]->setTime(1);
+  hits[2]->setTime(4);
+  hits[3]->setTime(3);
+  JPetEvent* event = 0;
+
+  TFile* f = new TFile("test.root", "RECREATE");
+  TTree* T = new TTree("T", "T");
+  T->Branch("evt", &event);
+
+  event = new JPetEvent(hits, JPetEventType::kUnknown);
+  T->Fill();
+  delete event;
+
+  T->Write();
+  
+  f->Close();
+  delete f;
+
+  // read
+  TFile* ff = new TFile("test.root", "READ");
+  TTree * TT = (TTree*)ff->Get("T");
+
+  TObject* event2;
+  TT->SetBranchAddress("evt", &event2);
+  TT->GetEntry(0);
+  TT->Print();
+  
+  
+  // auto results = event2->getHits();
+  // BOOST_REQUIRE_EQUAL(results[0]->getTime(), 1);
+  // BOOST_REQUIRE_EQUAL(results[1]->getTime(), 2);
+  // BOOST_REQUIRE_EQUAL(results[2]->getTime(), 3);
+  // BOOST_REQUIRE_EQUAL(results[3]->getTime(), 4);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

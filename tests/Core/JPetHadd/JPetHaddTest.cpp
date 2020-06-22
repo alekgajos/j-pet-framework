@@ -100,17 +100,17 @@ BOOST_AUTO_TEST_CASE(check_same_data)
       BOOST_REQUIRE_EQUAL(haddedHits.size(), compareHits.size());
       for (unsigned int i = 0; i < haddedHits.size(); i++)
       {
-        BOOST_REQUIRE_EQUAL(haddedHits[i].getPosX(), compareHits[i].getPosX());
-        BOOST_REQUIRE_EQUAL(haddedHits[i].getPosY(), compareHits[i].getPosY());
-        BOOST_REQUIRE_EQUAL(haddedHits[i].getPosZ(), compareHits[i].getPosZ());
-        BOOST_REQUIRE_EQUAL(haddedHits[i].getEnergy(), compareHits[i].getEnergy());
-        BOOST_REQUIRE_EQUAL(haddedHits[i].getQualityOfEnergy(), compareHits[i].getQualityOfEnergy());
-        BOOST_REQUIRE_EQUAL(haddedHits[i].getTime(), compareHits[i].getTime());
-        BOOST_REQUIRE_EQUAL(haddedHits[i].getTimeDiff(), compareHits[i].getTimeDiff());
-        BOOST_REQUIRE_EQUAL(haddedHits[i].getQualityOfTime(), compareHits[i].getQualityOfTime());
-        BOOST_REQUIRE_EQUAL(haddedHits[i].getQualityOfTimeDiff(), compareHits[i].getQualityOfTimeDiff());
-        BOOST_REQUIRE(haddedHits[i].getScintillator() == compareHits[i].getScintillator());
-        BOOST_REQUIRE(haddedHits[i].getBarrelSlot() == compareHits[i].getBarrelSlot());
+        BOOST_REQUIRE_EQUAL(haddedHits[i]->getPosX(), compareHits[i]->getPosX());
+        BOOST_REQUIRE_EQUAL(haddedHits[i]->getPosY(), compareHits[i]->getPosY());
+        BOOST_REQUIRE_EQUAL(haddedHits[i]->getPosZ(), compareHits[i]->getPosZ());
+        BOOST_REQUIRE_EQUAL(haddedHits[i]->getEnergy(), compareHits[i]->getEnergy());
+        BOOST_REQUIRE_EQUAL(haddedHits[i]->getQualityOfEnergy(), compareHits[i]->getQualityOfEnergy());
+        BOOST_REQUIRE_EQUAL(haddedHits[i]->getTime(), compareHits[i]->getTime());
+        BOOST_REQUIRE_EQUAL(haddedHits[i]->getTimeDiff(), compareHits[i]->getTimeDiff());
+        BOOST_REQUIRE_EQUAL(haddedHits[i]->getQualityOfTime(), compareHits[i]->getQualityOfTime());
+        BOOST_REQUIRE_EQUAL(haddedHits[i]->getQualityOfTimeDiff(), compareHits[i]->getQualityOfTimeDiff());
+        BOOST_REQUIRE(haddedHits[i]->getScintillator() == compareHits[i]->getScintillator());
+        BOOST_REQUIRE(haddedHits[i]->getBarrelSlot() == compareHits[i]->getBarrelSlot());
       }
     }
     readerHaddedFile.nextEntry();
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(check_param_bank)
       const auto& haddedHits = haddedEvent.getHits();
       for (unsigned int i = 0; i < haddedHits.size(); i++)
       {
-        BOOST_CHECK_PREDICATE(std::not_equal_to<size_t>(), (haddedHits[i].getScintillator().getID())(0));
+        BOOST_CHECK_PREDICATE(std::not_equal_to<size_t>(), (haddedHits[i]->getScintillator().getID())(0));
       }
     }
     readerHaddedFile.nextEntry();
