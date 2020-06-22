@@ -22,23 +22,23 @@ jobs:
         tar xzf root-6-20-06-ubuntu18-jpet.tar.gz
     - name: cmake
       run: |
-        source root-system/bin/thisroot.sh
-        mkdir root-system/modules        
-        mkdir root-system/cmake
-        mkdir root-system/cmake/modules
-        cp root-system/RootMacros.cmake root-system/modules/RootNewMacros.cmake
-        cp root-system/RootMacros.cmake root-system/cmake/modules/RootNewMacros.cmake
+        source root-install/bin/thisroot.sh
+        mkdir root-install/modules        
+        mkdir root-install/cmake
+        mkdir root-install/cmake/modules
+        cp root-install/RootMacros.cmake root-install/modules/RootNewMacros.cmake
+        cp root-install/RootMacros.cmake root-install/cmake/modules/RootNewMacros.cmake
         mkdir build
         cd build
         cmake ..
     - name: make
       run: |
-        source root-system/bin/thisroot.sh
+        source root-install/bin/thisroot.sh
         cd build
         make all tests -j4
     - name: run tests
       run: |
-        source root-system/bin/thisroot.sh
+        source root-install/bin/thisroot.sh
         cd build
         source bin/thisframework.sh
         ls -l src/Unpacker2-download/Unpacker2-prefix/src/Unpacker2-build/
