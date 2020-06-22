@@ -23,6 +23,8 @@ jobs:
     - name: cmake
       run: |
         source root-system/bin/thisroot.sh
+        mkdir root-system/cmake
+        ln -s root-system/RootMacros.cmake root-system/cmake/RootNewMacros.cmake
         mkdir build
         cd build
         cmake ..
