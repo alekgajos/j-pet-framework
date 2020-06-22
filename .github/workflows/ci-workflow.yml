@@ -18,22 +18,22 @@ jobs:
       
     - name: download  ROOT 
       run: |
-        wget https://root.cern.ch/download/root_v6.14.00.Linux-ubuntu18-x86_64-gcc7.3.tar.gz
-        tar xzf root_v6.14.00.Linux-ubuntu18-x86_64-gcc7.3.tar.gz
+        wget http://sphinx.if.uj.edu.pl/~alek/root-6-20-06-ubuntu18-jpet.tar.gz
+        tar xzf root-6-20-06-ubuntu18-jpet.tar.gz
     - name: cmake
       run: |
-        source root/bin/thisroot.sh
+        source root-system/bin/thisroot.sh
         mkdir build
         cd build
         cmake ..
     - name: make
       run: |
-        source root/bin/thisroot.sh
+        source root-system/bin/thisroot.sh
         cd build
         make all tests -j4
     - name: run tests
       run: |
-        source root/bin/thisroot.sh
+        source root-system/bin/thisroot.sh
         cd build
         source bin/thisframework.sh
         ls -l src/Unpacker2-download/Unpacker2-prefix/src/Unpacker2-build/
