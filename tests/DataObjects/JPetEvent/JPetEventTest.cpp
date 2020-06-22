@@ -299,17 +299,15 @@ BOOST_AUTO_TEST_CASE(hitsPointerStorageTest)
   TFile* ff = new TFile("test.root", "READ");
   TTree * TT = (TTree*)ff->Get("T");
 
-  TObject* event2;
+  JPetEvent* event2 = new JPetEvent();
   TT->SetBranchAddress("evt", &event2);
   TT->GetEntry(0);
-  TT->Print();
-  
-  
-  // auto results = event2->getHits();
-  // BOOST_REQUIRE_EQUAL(results[0]->getTime(), 1);
-  // BOOST_REQUIRE_EQUAL(results[1]->getTime(), 2);
-  // BOOST_REQUIRE_EQUAL(results[2]->getTime(), 3);
-  // BOOST_REQUIRE_EQUAL(results[3]->getTime(), 4);
+    
+  auto results = event2->getHits();
+  BOOST_REQUIRE_EQUAL(results[0]->getTime(), 1);
+  BOOST_REQUIRE_EQUAL(results[1]->getTime(), 2);
+  BOOST_REQUIRE_EQUAL(results[2]->getTime(), 3);
+  BOOST_REQUIRE_EQUAL(results[3]->getTime(), 4);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
