@@ -133,6 +133,12 @@ else()
   if(Unpacker2_FOUND)
     message(STATUS "Unpacker2 (version ${Unpacker2_VERSION}) was found using Unpacker2Config")
   endif()
+
+  # in case we are using an internal Unpacker2 build,
+  # the build-time runpath of the framework library
+  # should be preserved after installation
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif(Unpacker2_FOUND)
 
 ################################################################################
